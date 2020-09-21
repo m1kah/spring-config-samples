@@ -6,11 +6,14 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.ProxyProvider;
 
 import java.net.InetSocketAddress;
+
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 @Configuration
 public class WebClientConfig {
@@ -32,6 +35,9 @@ public class WebClientConfig {
                                 .addHandlerLast(new ReadTimeoutHandler(3))
                                 .addHandlerLast(new WriteTimeoutHandler(3))));
         var connector = new ReactorClientHttpConnector(httpClient);
-        return WebClient.builder().clientConnector(connector).build();
+        return WebClient.builder()
+                .clientConnector(connector)
+                .filter(basicAuthentication("username", "password"))
+                .build();
     }
 }
