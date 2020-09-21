@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Map;
 
 @RestController
 public class SampleController {
@@ -17,10 +18,15 @@ public class SampleController {
     }
 
     @GetMapping("/sample")
-    Mono<String> getSample() {
+    Mono<Map<String, String>> getSample() {
         return webClient.get().uri(URI.create("http://localhost:8081/ping"))
-                .accept(MediaType.TEXT_PLAIN)
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(Ping.class)
+                .map(ping -> Map.of("sample", ping.ping));
+    }
+
+    public static class Ping {
+        public String ping;
     }
 }
